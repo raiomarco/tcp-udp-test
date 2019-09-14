@@ -1,7 +1,6 @@
-import socket as sock
 import time
 import threading
-import os
+import socket as sock
 
 FINISH = "FINE"
 
