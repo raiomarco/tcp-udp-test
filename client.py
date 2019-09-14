@@ -10,12 +10,12 @@ MAX_COUNT = 10000
 def input_number(message, max_number):
     while True:
         try:
-            number = int(raw_input(message))
+            number = int(input(message))
             if number > 0 and number <= max_number:
                 return number
-            print "Value out of range 1-{}".format(max_number)
+            print("Value out of range 1-{}".format(max_number))
         except ValueError:
-            print "Invalid input"
+            print("Invalid input")
 
 def create_packets(concat_packets, packet_count, packet_size, max_buffer_size):
     packets = ["x" * packet_size] * packet_count
@@ -37,7 +37,7 @@ def tcp_sender(tcp_socket, packets ):
         tcp_socket.close()
         print("Finished, press q to exit or anything else to send again: ")
     except sock.error as e:
-        print e
+        print(e)
         return
 
 def send_udp(udp_socket, data, address):
@@ -56,11 +56,11 @@ def udp_sender(udp_socket, packets, address, total_size):
         time.sleep(0.0001)
         send_udp(udp_socket, "FINE", address)
     except sock.error as e:
-        print e
+        print(e)
         return
 
 def send_both(tcp_socket, udp_socket, max_buffer_size, address):
-    concat_packets =  raw_input("Concat packets? [y]:") == 'y'
+    concat_packets =  input("Concat packets? [y]:") == 'y'
     packet_size = input_number("Packet size: ", max_buffer_size)
     packet_count = input_number("How many packets: ", MAX_COUNT)
 
@@ -74,7 +74,7 @@ def send_both(tcp_socket, udp_socket, max_buffer_size, address):
             print("unknown server response")
             return None, None
     except sock.error as e:
-        print "Failed to connect to server. Error: " + e.strerror
+        print("Failed to connect to server. Error: " + e.strerror)
         return None, None
 
     packets, total_size = create_packets(concat_packets, packet_count, packet_size, max_buffer_size)
@@ -98,16 +98,16 @@ def main():
     udp_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
     tcp_thread, udp_thread = None, None
     while True:
-        if raw_input("Enter q to quit, or anything else to start sending: ") == "q":
-            if (tcp_thread and tcp_thread.isAlive()) or (udp_thread and udp_thread.isAlive()):
+        if input("Enter q to quit, or anything else to start sending: ") == "q":
+            if (tcp_thread and tcp_thread.is_alive()) or (udp_thread and udp_thread.is_alive()):
                 tcp_socket.shutdown(sock.SHUT_RDWR)
                 udp_socket.close()
                 udp_socket = None
                 tcp_socket.close()
-                if (tcp_thread and tcp_thread.isAlive()): tcp_thread.join()
-                if (udp_thread and udp_thread.isAlive()): udp_thread.join()
+                if (tcp_thread and tcp_thread.is_alive()): tcp_thread.join()
+                if (udp_thread and udp_thread.is_alive()): udp_thread.join()
             break
-        elif not tcp_thread or not tcp_thread.isAlive():
+        elif not tcp_thread or not tcp_thread.is_alive():
             tcp_socket = configure_tcp(port)
             tcp_thread, udp_thread = send_both(tcp_socket, udp_socket, max_buffer_size, (HOST, port))
     if udp_socket: udp_socket.close()

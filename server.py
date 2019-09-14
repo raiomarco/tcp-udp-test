@@ -1,13 +1,14 @@
 import socket as sock
 import time
 import threading
+import os
 
 FINISH = "FINE"
 
 def input_number(message, max_number):
     while True:
         try:
-            number = int(raw_input(message))
+            number = int(input(message))
             if number > 0 and number < max_number:
                 return number
             print("Value out of range 1-{}".format(max_number))
@@ -51,7 +52,7 @@ def accept_clients(tcp_socket, udp_socket):
     while True:
         try:
             conn = tcp_socket.accept()[0]
-            if (tcp_t and tcp_t.isAlive()) or (udp_t and udp_t.isAlive()):
+            if (tcp_t and tcp_t.is_alive()) or (udp_t and udp_t.is_alive()):
                 conn.send("BUSY".encode())
                 conn.close()
             else:
@@ -64,12 +65,12 @@ def accept_clients(tcp_socket, udp_socket):
         except sock.error as e:
             print(e.strerror)
             break
-    if tcp_t and tcp_t.isAlive():
+    if tcp_t and tcp_t.is_alive():
         if conn:
             conn.shutdown(sock.SHUT_RDWR)
             conn.close()
         tcp_t.join()
-    if udp_t and udp_t.isAlive():
+    if udp_t and udp_t.is_alive():
         udp_t.join()
 
 def receive_udp(udp_socket):
@@ -77,7 +78,7 @@ def receive_udp(udp_socket):
         max_buffer_size = get_buffer(udp_socket, 'SIZE')
         expected = get_buffer(udp_socket, 'TOTAL')
     except ValueError:
-        print "incorrect client message"
+        print("incorrect client message")
         return
     except sock.error as e:
         print(e.strerror)
@@ -102,7 +103,7 @@ def receive_tcp(conn):
     try:
         max_buffer_size = get_buffer(conn, 'SIZE')
     except ValueError:
-        print "incorrect client message"
+        print("incorrect client message")
         conn.close()
         return
     except sock.error as e:
@@ -154,7 +155,7 @@ def main():
     accepting_thread = threading.Thread(target=accept_clients, args=(tcp_socket, udp_socket))
     accepting_thread.start()
     while True:
-        c = raw_input("Type q for quit:\n")
+        c = input("Type q for quit:\n")
         if c == "q":
             tcp_socket.shutdown(sock.SHUT_RDWR)
             tcp_socket.close()
