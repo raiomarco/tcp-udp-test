@@ -30,7 +30,7 @@ def print_udp(interval, received, expected):
             packet_loss
         ))
     else:
-        print("Tempo measured too short")
+        print("Tempo medido muito curto.")
 
 def print_tcp(interval, received):
     time_passed = interval[1] - interval[0]
