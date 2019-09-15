@@ -3,7 +3,7 @@ import threading
 import socket as sock
 import math
 
-HOST = "127.0.0.1"
+HOST = "45.55.62.128"
 MAX_SIZE = 50000
 MAX_COUNT = 10000
 
@@ -21,17 +21,17 @@ def create_packets(concat_packets, packet_count, packet_size, max_buffer_size):
     packets = ["x" * packet_size] * packet_count
     if concat_packets:
         whole_message = "".join(packets)
-        packets = [ whole_message[i*max_buffer_size:(i+1)*max_buffer_size] for i in xrange(int(math.ceil(float(len(whole_message))/max_buffer_size)))]
+        packets = [ whole_message[i*max_buffer_size:(i+1)*max_buffer_size] for i in range(int(math.ceil(float(len(whole_message))/max_buffer_size)))]
     return packets, len(packets[0]) * (len(packets) - 1) + len(packets[-1])
 
-def tcp_sender(tcp_socket, packets ):
+def tcp_sender(tcp_socket, packets):
     packet_size = len(packets[0])
     try:
         time.sleep(0.001)
         tcp_socket.send("TAMANHO:{}".format(packet_size).encode())
         for packet in packets:
             time.sleep(0.00001)
-            tcp_socket.send(packet)
+            tcp_socket.send(packet.encode())
         tcp_socket.send("BEM".encode())
         tcp_socket.shutdown(sock.SHUT_RDWR)
         tcp_socket.close()
@@ -55,6 +55,7 @@ def udp_sender(udp_socket, packets, address, total_size):
             send_udp(udp_socket, packet, address)
         time.sleep(0.0001)
         send_udp(udp_socket, "BEM", address)
+        print("udp enviado")
     except sock.error as e:
         print(e)
         return
@@ -78,7 +79,7 @@ def send_both(tcp_socket, udp_socket, max_buffer_size, address):
         return None, None
 
     packets, total_size = create_packets(concat_packets, packet_count, packet_size, max_buffer_size)
-    tcp_thread = threading.Thread(target=tcp_sender, args=(tcp_socket, packets,))
+    tcp_thread = threading.Thread(target=tcp_sender, args=(tcp_socket, packets))
     udp_thread = threading.Thread(target=udp_sender, args=(udp_socket, packets, address, total_size))
 
     tcp_thread.start()

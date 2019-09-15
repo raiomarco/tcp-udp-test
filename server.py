@@ -35,6 +35,7 @@ def print_udp(interval, received, expected):
 def print_tcp(interval, received):
     time_passed = interval[1] - interval[0]
     received_kb = len(received) * 8 / 1000.0
+    #packet_loss = 100 - received.count("x") * 100.0 / expected
     if time_passed:
         print("Thread TCP: recebido {} kb no tempo de {} s com velocidade de {} kb/s".format(
             received_kb,
@@ -77,12 +78,11 @@ def receive_udp(udp_socket):
         max_buffer_size = get_buffer(udp_socket, 'TAMANHO')
         expected = get_buffer(udp_socket, 'TOTAL')
     except ValueError:
-        print("Mensagem incorreta do cliente!")
+        print("Mensagem incorreta do cliente![udp]")
         return
     except sock.error as e:
-        print(e.strerror)
+        print("[udp]" + e)
         return
-
     received = ""
     start = time.time()
     while True:
@@ -92,17 +92,21 @@ def receive_udp(udp_socket):
             if data.decode() == FINISH:
                 break
             else:
-                received += data
+                received += data.decode()
 
-        except sock.error:
+        except sock.error as e:
+            print(e)
             break
     print_udp((start, stop), received, expected)
 
 def receive_tcp(conn):
     try:
         max_buffer_size = get_buffer(conn, 'TAMANHO')
-    except ValueError:
-        print("Mensagem incorreta do cliente!")
+        expected = get_buffer(conn, 'TOTAL')
+        print("ponto 2 ok")
+    except ValueError as e:
+        print("Mensagem incorreta do cliente![tcp]")
+        print(e)
         conn.close()
         return
     except sock.error as e:
@@ -117,12 +121,12 @@ def receive_tcp(conn):
         try:
             data = conn.recv(max_buffer_size)
             if not data:
-                print("Conexão Terminou Prematuramente!")
+                print("Conexão Terminou Prematuramente![tcp]")
                 break
             if data.decode() == FINISH:
                 break
             else:
-                received += data
+                received += data.decode()
         except sock.error:
             break
     print_tcp((start, stop), received)
@@ -138,9 +142,9 @@ def configure_tcp(port):
 
 def configure_udp(port):
     udp_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
-    udp_socket.bind(('localhost', port))
+    udp_socket.bind(('', port))
     # timeout é necessário para não ficar travado na udp_thread
-    udp_socket.settimeout(1)
+    udp_socket.settimeout(10)
     print('Servidor UDP pronto...')
     return udp_socket
 
