@@ -2,7 +2,7 @@ import time
 import threading
 import socket as sock
 
-FINISH = "FINE"
+FINISH = "BEM"
 
 def input_number(message, max_number):
     while True:
@@ -10,9 +10,9 @@ def input_number(message, max_number):
             number = int(input(message))
             if number > 0 and number < max_number:
                 return number
-            print("Value out of range 1-{}".format(max_number))
+            print("Valor fora do intervalo 1-{}".format(max_number))
         except ValueError:
-            print("Invalid input")
+            print("Entrada inválida!")
 
 def get_buffer(s, packet_name):
     data = s.recv(1000).decode()
@@ -23,26 +23,26 @@ def print_udp(interval, received, expected):
     received_kb = len(received) * 8 / 1000.0
     packet_loss = 100 - received.count("x") * 100.0 / expected
     if time_passed:
-        print("Thread UDP: received {} kb in time {} sec with the speed {} kb/sec. Packet loss: {} %".format(
+        print("Thread UDP: recebido {} kb no tempo de {} s com velocidade de {} kb/s. Perda de pacotes: {} %".format(
             received_kb,
             time_passed,
             received_kb / time_passed,
             packet_loss
         ))
     else:
-        print("time measured too short")
+        print("Tempo measured too short")
 
 def print_tcp(interval, received):
     time_passed = interval[1] - interval[0]
     received_kb = len(received) * 8 / 1000.0
     if time_passed:
-        print("Thread TCP: received {} kb in time {} sec with the speed {} kb/sec".format(
+        print("Thread TCP: recebido {} kb no tempo de {} s com velocidade de {} kb/s".format(
             received_kb,
             time_passed,
             received_kb / time_passed
         ))
     else:
-        print("time measured too short")
+        print("Tempo medido muito curto.")
 
 def accept_clients(tcp_socket, udp_socket):
     tcp_t = None
@@ -52,11 +52,11 @@ def accept_clients(tcp_socket, udp_socket):
         try:
             conn = tcp_socket.accept()[0]
             if (tcp_t and tcp_t.is_alive()) or (udp_t and udp_t.is_alive()):
-                conn.send("BUSY".encode())
+                conn.send("OCUPADO".encode())
                 conn.close()
             else:
                 conn.send("OK".encode())
-                print("client connected")
+                print("Cliente Conectado.")
                 tcp_t = threading.Thread(target=receive_tcp, args=(conn, ))
                 udp_t = threading.Thread(target=receive_udp, args=(udp_socket, ))
                 tcp_t.start()
@@ -74,10 +74,10 @@ def accept_clients(tcp_socket, udp_socket):
 
 def receive_udp(udp_socket):
     try:
-        max_buffer_size = get_buffer(udp_socket, 'SIZE')
+        max_buffer_size = get_buffer(udp_socket, 'TAMANHO')
         expected = get_buffer(udp_socket, 'TOTAL')
     except ValueError:
-        print("incorrect client message")
+        print("Mensagem incorreta do cliente!")
         return
     except sock.error as e:
         print(e.strerror)
@@ -100,9 +100,9 @@ def receive_udp(udp_socket):
 
 def receive_tcp(conn):
     try:
-        max_buffer_size = get_buffer(conn, 'SIZE')
+        max_buffer_size = get_buffer(conn, 'TAMANHO')
     except ValueError:
-        print("incorrect client message")
+        print("Mensagem incorreta do cliente!")
         conn.close()
         return
     except sock.error as e:
@@ -117,7 +117,7 @@ def receive_tcp(conn):
         try:
             data = conn.recv(max_buffer_size)
             if not data:
-                print("connection prematurely ended")
+                print("Conexão Terminou Prematuramente!")
                 break
             if data.decode() == FINISH:
                 break
@@ -133,20 +133,20 @@ def configure_tcp(port):
     tcp_socket.setsockopt(sock.SOL_SOCKET, sock.SO_REUSEADDR, 1)
     tcp_socket.bind(('', port))
     tcp_socket.listen(10)
-    print('TCP server ready...')
+    print('Servidor TCP pronto...')
     return tcp_socket
 
 def configure_udp(port):
     udp_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
     udp_socket.bind(('localhost', port))
-    # timeout is needed not to hang in the udp_thread
+    # timeout é necessário para não ficar travado na udp_thread
     udp_socket.settimeout(1)
-    print('UDP server ready...')
+    print('Servidor UDP pronto...')
     return udp_socket
 
 
 def main():
-    port = input_number("Enter port: ", 65535)
+    port = input_number("Insira a porta: ", 65535)
 
     tcp_socket = configure_tcp(port)
     udp_socket = configure_udp(port)
@@ -154,13 +154,14 @@ def main():
     accepting_thread = threading.Thread(target=accept_clients, args=(tcp_socket, udp_socket))
     accepting_thread.start()
     while True:
-        c = input("Type q for quit:\n")
+        c = input("Insira q para sair:\n")
         if c == "q":
             tcp_socket.shutdown(sock.SHUT_RDWR)
             tcp_socket.close()
             udp_socket.close()
             break
     accepting_thread.join()
+
 
 if __name__ == "__main__":
     main()
