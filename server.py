@@ -35,7 +35,6 @@ def print_udp(interval, received, expected):
 def print_tcp(interval, received):
     time_passed = interval[1] - interval[0]
     received_kb = len(received) * 8 / 1000.0
-    #packet_loss = 100 - received.count("x") * 100.0 / expected
     if time_passed:
         print("Thread TCP: recebido {} kb no tempo de {} s com velocidade de {} kb/s".format(
             received_kb,
@@ -102,8 +101,6 @@ def receive_udp(udp_socket):
 def receive_tcp(conn):
     try:
         max_buffer_size = get_buffer(conn, 'TAMANHO')
-        expected = get_buffer(conn, 'TOTAL')
-        print("ponto 2 ok")
     except ValueError as e:
         print("Mensagem incorreta do cliente![tcp]")
         print(e)
