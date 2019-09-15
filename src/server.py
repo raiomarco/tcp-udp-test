@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import time
 import threading
 import socket as sock
 
 FINISH = "BEM"
+
 
 def input_number(message, max_number):
     while True:
@@ -14,9 +17,11 @@ def input_number(message, max_number):
         except ValueError:
             print("Entrada inválida!")
 
+
 def get_buffer(s, packet_name):
     data = s.recv(1000).decode()
     return int(data[len(packet_name)+1:])
+
 
 def print_udp(interval, received, expected):
     time_passed = interval[1] - interval[0]
@@ -32,6 +37,7 @@ def print_udp(interval, received, expected):
     else:
         print("Tempo medido muito curto.")
 
+
 def print_tcp(interval, received):
     time_passed = interval[1] - interval[0]
     received_kb = len(received) * 8 / 1000.0
@@ -44,10 +50,12 @@ def print_tcp(interval, received):
     else:
         print("Tempo medido muito curto.")
 
+
 def accept_clients(tcp_socket, udp_socket):
     tcp_t = None
     udp_t = None
     conn = None
+
     while True:
         try:
             conn = tcp_socket.accept()[0]
@@ -64,13 +72,16 @@ def accept_clients(tcp_socket, udp_socket):
         except sock.error as e:
             print(e.strerror)
             break
+
     if tcp_t and tcp_t.is_alive():
         if conn:
             conn.shutdown(sock.SHUT_RDWR)
             conn.close()
         tcp_t.join()
+
     if udp_t and udp_t.is_alive():
         udp_t.join()
+
 
 def receive_udp(udp_socket):
     try:
@@ -84,6 +95,7 @@ def receive_udp(udp_socket):
         return
     received = ""
     start = time.time()
+
     while True:
         stop = time.time()
         try:
@@ -97,6 +109,7 @@ def receive_udp(udp_socket):
             print(e)
             break
     print_udp((start, stop), received, expected)
+
 
 def receive_tcp(conn):
     try:
@@ -120,6 +133,7 @@ def receive_tcp(conn):
             if not data:
                 print("Conexão Terminou Prematuramente![tcp]")
                 break
+
             if data.decode() == FINISH:
                 break
             else:
@@ -129,6 +143,7 @@ def receive_tcp(conn):
     print_tcp((start, stop), received)
     conn.close()
 
+
 def configure_tcp(port):
     tcp_socket = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
     tcp_socket.setsockopt(sock.SOL_SOCKET, sock.SO_REUSEADDR, 1)
@@ -136,6 +151,7 @@ def configure_tcp(port):
     tcp_socket.listen(10)
     print('Servidor TCP pronto...')
     return tcp_socket
+
 
 def configure_udp(port):
     udp_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
@@ -154,6 +170,7 @@ def main():
 
     accepting_thread = threading.Thread(target=accept_clients, args=(tcp_socket, udp_socket))
     accepting_thread.start()
+
     while True:
         c = input("Insira q para sair:\n")
         if c == "q":
@@ -161,6 +178,7 @@ def main():
             tcp_socket.close()
             udp_socket.close()
             break
+
     accepting_thread.join()
 
 
