@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import time
 import threading
 import socket as sock
@@ -6,6 +8,7 @@ import math
 HOST = "45.55.62.128"
 MAX_SIZE = 50000
 MAX_COUNT = 10000
+
 
 def input_number(message, max_number):
     while True:
@@ -17,12 +20,14 @@ def input_number(message, max_number):
         except ValueError:
             print("Entrada inválida!")
 
+
 def create_packets(concat_packets, packet_count, packet_size, max_buffer_size):
     packets = ["x" * packet_size] * packet_count
     if concat_packets:
         whole_message = "".join(packets)
         packets = [ whole_message[i*max_buffer_size:(i+1)*max_buffer_size] for i in range(int(math.ceil(float(len(whole_message))/max_buffer_size)))]
     return packets, len(packets[0]) * (len(packets) - 1) + len(packets[-1])
+
 
 def tcp_sender(tcp_socket, packets):
     packet_size = len(packets[0])
@@ -40,9 +45,11 @@ def tcp_sender(tcp_socket, packets):
         print(e)
         return
 
+
 def send_udp(udp_socket, data, address):
     time.sleep(0.00001)
     udp_socket.sendto(data.encode(), address)
+
 
 def udp_sender(udp_socket, packets, address, total_size):
     packet_size = len(packets[0])
@@ -55,10 +62,11 @@ def udp_sender(udp_socket, packets, address, total_size):
             send_udp(udp_socket, packet, address)
         time.sleep(0.0001)
         send_udp(udp_socket, "BEM", address)
-        print("udp enviado")
+        print("UDP Enviado.")
     except sock.error as e:
         print(e)
         return
+
 
 def send_both(tcp_socket, udp_socket, max_buffer_size, address):
     concat_packets = input("Concatenar pacotes? [y]:") == 'y'
@@ -84,7 +92,7 @@ def send_both(tcp_socket, udp_socket, max_buffer_size, address):
 
     tcp_thread.start()
     udp_thread.start()
-    return  tcp_thread, udp_thread
+    return tcp_thread, udp_thread
 
 
 def configure_tcp(port):
@@ -92,12 +100,14 @@ def configure_tcp(port):
     tcp_socket.setsockopt(sock.SOL_SOCKET, sock.SO_REUSEADDR, 1)
     return tcp_socket
 
+
 def main():
     port = input_number("Insira a porta: ", 65535)
     max_buffer_size = input_number("Insira o tamanho máximo do buffer: ", MAX_SIZE)
 
     udp_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
     tcp_thread, udp_thread = None, None
+    
     while True:
         if input("Insira q para sair ou qualquer outra coisa para começar a enviar: ") == "q":
             if (tcp_thread and tcp_thread.is_alive()) or (udp_thread and udp_thread.is_alive()):
@@ -105,13 +115,17 @@ def main():
                 udp_socket.close()
                 udp_socket = None
                 tcp_socket.close()
-                if (tcp_thread and tcp_thread.is_alive()): tcp_thread.join()
-                if (udp_thread and udp_thread.is_alive()): udp_thread.join()
+                if (tcp_thread and tcp_thread.is_alive()):
+                    tcp_thread.join()
+                if (udp_thread and udp_thread.is_alive()):
+                    udp_thread.join()
             break
         elif not tcp_thread or not tcp_thread.is_alive():
             tcp_socket = configure_tcp(port)
             tcp_thread, udp_thread = send_both(tcp_socket, udp_socket, max_buffer_size, (HOST, port))
-    if udp_socket: udp_socket.close()
+    
+    if udp_socket:
+        udp_socket.close()
 
 
 if __name__ == "__main__":
