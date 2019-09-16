@@ -119,7 +119,7 @@ def receive_tcp(conn):
         stop = time.time()
         try:
             data = conn.recv(max_buffer_size)
-            print("Servidor recebeu")
+            print("[tcp]Servidor recebeu")
             conn.send(data)
 
             if not data:
