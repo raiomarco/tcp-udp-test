@@ -23,7 +23,7 @@ def print_udp(interval, received, expected):
     received_kb = len(received) * 8 / 1000.0
     packet_loss = 100 - received.count("x") * 100.0 / expected
     if time_passed:
-        print("Thread UDP: recebido {} kb no tempo de {} s com velocidade de {} kb/s. Perda de pacotes: {} %".format(
+        print("Thread UDP: recebido {} kb no tempo de {} ms com velocidade de {} kb/s. Perda de pacotes: {} %".format(
             received_kb,
             time_passed,
             received_kb / time_passed,
@@ -36,7 +36,7 @@ def print_tcp(interval, received):
     time_passed = ((interval[1] - interval[0]) * 1000)
     received_kb = len(received) * 8 / 1000.0
     if time_passed:
-        print("Thread TCP: recebido {} kb no tempo de {} s com velocidade de {} kb/s".format(
+        print("Thread TCP: recebido {} kb no tempo de {} ms com velocidade de {} kb/s".format(
             received_kb,
             time_passed,
             received_kb / time_passed
