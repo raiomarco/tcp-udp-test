@@ -160,6 +160,17 @@ def main():
     accepting_thread = threading.Thread(target=accept_clients, args=(tcp_socket, udp_socket))
     accepting_thread.start()
     while True:
+<<<<<<< HEAD
+=======
+        data, client = tcp_socket.recv(4096)
+	    #print(data)
+	    print("Servidor recebeu de", str(client),":",data.decode())
+	    if data.decode() == "ping":	
+		    tcp_socket.send(b"pong", client)
+	    elif data.decode() != "ping":
+		    tcp_socket.send(data, client)
+
+>>>>>>> cf98a84f5771d27b2a1974ac1a372d121175d1a1
         c = input("Insira q para sair:\n")
         if c == "q":
             tcp_socket.shutdown(sock.SHUT_RDWR)
