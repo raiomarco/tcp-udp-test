@@ -118,9 +118,9 @@ def receive_tcp(conn):
     while True:
         stop = time.time()
         try:
-            data, client = conn.recv(max_buffer_size)
-            print("Servidor recebeu de", str(client),":",data.decode())
-            tcp_socket.send(data, client)
+            data = conn.recv(max_buffer_size)
+            print("Servidor recebeu")
+            conn.send(data)
 
             if not data:
                 print("[tcp]Conexão Terminou Prematuramente!")
