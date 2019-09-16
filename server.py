@@ -118,7 +118,10 @@ def receive_tcp(conn):
     while True:
         stop = time.time()
         try:
-            data = conn.recv(max_buffer_size)
+            data, client = conn.recv(max_buffer_size)
+            print("Servidor recebeu de", str(client),":",data.decode())
+            tcp_socket.send(data, client)
+
             if not data:
                 print("[tcp]Conexão Terminou Prematuramente!")
                 break
@@ -157,14 +160,6 @@ def main():
     accepting_thread = threading.Thread(target=accept_clients, args=(tcp_socket, udp_socket))
     accepting_thread.start()
     while True:
-        data, client = tcp_socket.recv(1024)
-	    #print(data)
-	    print("Servidor recebeu de", str(client),":",data.decode())
-	    if data.decode() == "ping":	
-		    tcp_socket.send(b"pong", client)
-	    elif data.decode() != "ping":
-		    tcp_socket.send(data, client)
-
         c = input("Insira q para sair:\n")
         if c == "q":
             tcp_socket.shutdown(sock.SHUT_RDWR)
