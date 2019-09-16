@@ -58,14 +58,14 @@ def udp_sender(udp_socket, packets, address, total_size):
         send_udp(udp_socket, "TOTAL:{}".format(total_size), address)
         time.sleep(0.0001)
         for packet in packets:
-            #ti = ((timeit.default_timer())*1000)
+            ti = ((timeit.default_timer())*1000)
             send_udp(udp_socket, packet, address)
-            #data, cliente = udp_socket.recvfrom(packet_size)
-            #tf = ((timeit.default_timer())*1000)
-            #print("Tempo: ",tf-ti,"ms")
+            data = udp_socket.recvfrom(packet_size)
+            tf = ((timeit.default_timer())*1000)
+            print("[udp]Tempo: ",tf-ti,"ms")
         time.sleep(0.0001)
         send_udp(udp_socket, "BEM", address)
-        print("udp enviado")
+        print("[udp]udp enviado")
     except sock.error as e:
         print(e)
         return

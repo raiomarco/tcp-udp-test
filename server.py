@@ -88,8 +88,8 @@ def receive_udp(udp_socket):
     while True:
         stop = time.time()
         try:
-            data = udp_socket.recv(max_buffer_size)
-            #udp_socket.sendto(b"pong", cliente)
+            data, client = udp_socket.recv(max_buffer_size)
+            udp_socket.sendto(b"pong", client)
             if data.decode() == FINISH:
                 break
             else:
@@ -119,7 +119,7 @@ def receive_tcp(conn):
         stop = time.time()
         try:
             data = conn.recv(max_buffer_size)
-            print("[tcp]Servidor recebeu")
+            #print("[tcp]Servidor recebeu")
             conn.send(data)
 
             if not data:
