@@ -19,7 +19,7 @@ def get_buffer(s, packet_name):
     return int(data[len(packet_name)+1:])
 
 def print_udp(interval, received, expected):
-    time_passed = interval[1] - interval[0]
+    time_passed = ((interval[1] - interval[0]) * 1000)
     received_kb = len(received) * 8 / 1000.0
     packet_loss = 100 - received.count("x") * 100.0 / expected
     if time_passed:
@@ -33,7 +33,7 @@ def print_udp(interval, received, expected):
         print("Tempo medido muito curto.")
 
 def print_tcp(interval, received):
-    time_passed = interval[1] - interval[0]
+    time_passed = ((interval[1] - interval[0]) * 1000)
     received_kb = len(received) * 8 / 1000.0
     if time_passed:
         print("Thread TCP: recebido {} kb no tempo de {} s com velocidade de {} kb/s".format(
