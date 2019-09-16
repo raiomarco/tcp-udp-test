@@ -103,7 +103,24 @@ def main():
 
     udp_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
     tcp_thread, udp_thread = None, None
+
+    msg = input("> ")
+
     while True:
+        ti = ((timeit.default_timer())*1000)
+        tcp_socket.send(msg.encode(), (HOST, port))
+        data, client = tcp_socket.recv(1024)
+	    tf = ((timeit.default_timer())*1000)
+
+        if msg == "ping":
+		    print("Servidor",str(client),"responde: ",data.decode())
+		    print("Tempo: ",tf-ti,"ms")
+		    msg = input("> ")
+	    elif msg == "S":
+		    break
+	    else:
+		    msg = input("> ")
+
         if input("Insira q para sair ou qualquer outra coisa para começar a enviar: ") == "q":
             if (tcp_thread and tcp_thread.is_alive()) or (udp_thread and udp_thread.is_alive()):
                 tcp_socket.shutdown(sock.SHUT_RDWR)
