@@ -19,27 +19,27 @@ def get_buffer(s, packet_name):
     return int(data[len(packet_name)+1:])
 
 def print_udp(interval, received, expected):
-    time_passed = ((interval[1] - interval[0]) * 1000)
+    time_passed = interval[1] - interval[0]
     received_kb = len(received) * 8 / 1000.0
     packet_loss = 100 - received.count("x") * 100.0 / expected
     if time_passed:
         print("Thread UDP: recebido {} kb no tempo de {} ms com velocidade de {} kb/s. Perda de pacotes: {} %".format(
             received_kb,
-            time_passed,
-            (received_kb / (time_passed/1000)),
+            time_passed * 1000,
+            received_kb / time_passed,
             packet_loss
         ))
     else:
         print("Tempo medido muito curto.")
 
 def print_tcp(interval, received):
-    time_passed = ((interval[1] - interval[0]) * 1000)
+    time_passed = interval[1] - interval[0]
     received_kb = len(received) * 8 / 1000.0
     if time_passed:
         print("Thread TCP: recebido {} kb no tempo de {} ms com velocidade de {} kb/s".format(
             received_kb,
-            time_passed,
-            (received_kb / (time_passed/1000))
+            time_passed * 1000,
+            received_kb / time_passed
         ))
     else:
         print("Tempo medido muito curto.")
@@ -88,7 +88,7 @@ def receive_udp(udp_socket):
     while True:
         stop = time.time()
         try:
-            data, client = udp_socket.recv(max_buffer_size)
+            data, client = udp_socket.recvfrom(max_buffer_size)
             udp_socket.sendto(b"pong", client)
             if data.decode() == FINISH:
                 break
@@ -119,9 +119,7 @@ def receive_tcp(conn):
         stop = time.time()
         try:
             data = conn.recv(max_buffer_size)
-            #print("[tcp]Servidor recebeu")
-            conn.send(data)
-
+            conn.send(b"pong")
             if not data:
                 print("[tcp]Conexão Terminou Prematuramente!")
                 break

@@ -30,18 +30,22 @@ def tcp_sender(tcp_socket, packets):
     try:
         time.sleep(0.001)
         tcp_socket.send("TAMANHO:{}".format(packet_size).encode())
+        pongados_tcp = []
         for packet in packets:
             time.sleep(0.00001)
             ti = ((timeit.default_timer())*1000)
             tcp_socket.send(packet.encode())
             data = tcp_socket.recv(packet_size)
             tf = ((timeit.default_timer())*1000)
-            print("[tcp]Servidor respondeu")
-            print("[tcp]Tempo: ",tf-ti,"ms")
+            if data == b"pong":
+                pongados_tcp.append(tf-ti)
         tcp_socket.send("BEM".encode())
         tcp_socket.shutdown(sock.SHUT_RDWR)
         tcp_socket.close()
-        print("Concluído, pressione q para sair ou qualquer outra coisa para enviar novamente: ")
+        print("[tcp]Latencia media: " + str((sum(pongados_tcp)/len(pongados_tcp))))
+        print("[tcp]Calculados " + str(len(pongados_tcp)) + " de " + str(len(packets)))
+        print("[tcp]tcp enviado")
+        #print("Concluído, pressione q para sair ou qualquer outra coisa para enviar novamente: ")
     except sock.error as e:
         print(e)
         return
@@ -57,14 +61,18 @@ def udp_sender(udp_socket, packets, address, total_size):
         time.sleep(0.0001)
         send_udp(udp_socket, "TOTAL:{}".format(total_size), address)
         time.sleep(0.0001)
+        pongados_udp = []
         for packet in packets:
             ti = ((timeit.default_timer())*1000)
             send_udp(udp_socket, packet, address)
-            data = udp_socket.recvfrom(packet_size)
+            data, server = udp_socket.recvfrom(packet_size)
             tf = ((timeit.default_timer())*1000)
-            print("[udp]Tempo: ",tf-ti,"ms")
+            if data == b"pong":
+                pongados_udp.append(tf-ti)
         time.sleep(0.0001)
         send_udp(udp_socket, "BEM", address)
+        print("[udp]Latencia media: " + str((sum(pongados_udp)/len(pongados_udp))))
+        print("[udp]Calculados " + str(len(pongados_udp)) + " de " + str(len(packets)))
         print("[udp]udp enviado")
     except sock.error as e:
         print(e)
@@ -109,7 +117,7 @@ def main():
     udp_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
     tcp_thread, udp_thread = None, None
     while True:
-        if input("Insira q para sair ou qualquer outra coisa para começar a enviar: ") == "q":
+        if input("Insira q para sair ou qualquer outra coisa para começar a enviar: \n") == "q":
             if (tcp_thread and tcp_thread.is_alive()) or (udp_thread and udp_thread.is_alive()):
                 tcp_socket.shutdown(sock.SHUT_RDWR)
                 udp_socket.close()
