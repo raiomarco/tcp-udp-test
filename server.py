@@ -26,7 +26,7 @@ def print_udp(interval, received, expected):
         print("Thread UDP: recebido {} kb no tempo de {} ms com velocidade de {} kb/s. Perda de pacotes: {} %".format(
             received_kb,
             time_passed,
-            received_kb / time_passed,
+            (received_kb / (time_passed/1000)),
             packet_loss
         ))
     else:
@@ -39,7 +39,7 @@ def print_tcp(interval, received):
         print("Thread TCP: recebido {} kb no tempo de {} ms com velocidade de {} kb/s".format(
             received_kb,
             time_passed,
-            received_kb / time_passed
+            (received_kb / (time_passed/1000))
         ))
     else:
         print("Tempo medido muito curto.")
