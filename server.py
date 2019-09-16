@@ -157,7 +157,7 @@ def main():
     accepting_thread = threading.Thread(target=accept_clients, args=(tcp_socket, udp_socket))
     accepting_thread.start()
     while True:
-        data, client = tcp_socket.recv(1024)
+        data, client = tcp_socket.recv(4096)
 	    #print(data)
 	    print("Servidor recebeu de", str(client),":",data.decode())
 	    if data.decode() == "ping":	
