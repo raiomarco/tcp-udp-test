@@ -109,7 +109,7 @@ def main():
     while True:
         ti = ((timeit.default_timer())*1000)
         tcp_socket.send(msg.encode(), (HOST, port))
-        data, client = tcp_socket.recv(1024)
+        data, client = tcp_socket.recv(4096)
 	    tf = ((timeit.default_timer())*1000)
 
         if msg == "ping":
