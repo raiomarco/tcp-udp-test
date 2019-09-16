@@ -76,11 +76,12 @@ def receive_udp(udp_socket):
     try:
         max_buffer_size = get_buffer(udp_socket, 'TAMANHO')
         expected = get_buffer(udp_socket, 'TOTAL')
-    except ValueError:
-        print("Mensagem incorreta do cliente![udp]")
+    except ValueError as e:
+        print("[udp]Mensagem incorreta do cliente!")
+        print(e)
         return
     except sock.error as e:
-        print("[udp]" + e)
+        print("[udp]" + str(e))
         return
     received = ""
     start = time.time()
@@ -88,6 +89,7 @@ def receive_udp(udp_socket):
         stop = time.time()
         try:
             data = udp_socket.recv(max_buffer_size)
+            #udp_socket.sendto(b"pong", cliente)
             if data.decode() == FINISH:
                 break
             else:
@@ -102,12 +104,12 @@ def receive_tcp(conn):
     try:
         max_buffer_size = get_buffer(conn, 'TAMANHO')
     except ValueError as e:
-        print("Mensagem incorreta do cliente![tcp]")
+        print("[tcp]Mensagem incorreta do cliente!")
         print(e)
         conn.close()
         return
     except sock.error as e:
-        print(e.strerror)
+        print("[tcp]" + str(e))
         conn.close()
         return
 
@@ -118,7 +120,7 @@ def receive_tcp(conn):
         try:
             data = conn.recv(max_buffer_size)
             if not data:
-                print("Conexão Terminou Prematuramente![tcp]")
+                print("[tcp]Conexão Terminou Prematuramente!")
                 break
             if data.decode() == FINISH:
                 break
